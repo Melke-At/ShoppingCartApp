@@ -1,5 +1,5 @@
+package org.example.shoppingcartapp;
 
-import org.example.shoppingcartapp.CartCalculator;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 

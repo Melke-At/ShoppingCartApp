@@ -1,14 +1,83 @@
 package org.example.shoppingcartapp;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
-public class HelloController {
-    @FXML
-    private Label welcomeText;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+public class Controller {
+
+    @FXML private ComboBox<String> languageBox;
+    @FXML private Label labelItems, labelTotal;
+    @FXML private TextField numItemsField;
+    @FXML private VBox itemsContainer;
+
+    private ResourceBundle bundle;
 
     @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+    public void initialize() {
+        languageBox.getItems().addAll("English", "Finnish", "Swedish", "Japanese", "Arabic");
+        languageBox.setValue("English");
+        loadLanguage(new Locale("en", "US"));
+    }
+
+    private void loadLanguage(Locale locale) {
+        bundle = ResourceBundle.getBundle("i18n.MessagesBundle", locale);
+
+        // Correct way to set label text
+        labelItems.setText(bundle.getString("enterItems"));
+        labelTotal.setText(bundle.getString("total"));
+    }
+
+    @FXML
+    private void changeLanguage() {
+        switch (languageBox.getValue()) {
+            case "Finnish" -> loadLanguage(new Locale("fi", "FI"));
+            case "Swedish" -> loadLanguage(new Locale("sv", "SE"));
+            case "Japanese" -> loadLanguage(new Locale("ja", "JP"));
+            case "Arabic" -> loadLanguage(new Locale("ar", "AR"));
+            default -> loadLanguage(new Locale("en", "US"));
+        }
+    }
+
+    @FXML
+    private void generateFields() {
+        itemsContainer.getChildren().clear();
+        int count = Integer.parseInt(numItemsField.getText());
+
+        for (int i = 0; i < count; i++) {
+            TextField price = new TextField();
+            price.setPromptText(bundle.getString("price"));
+
+            TextField quantity = new TextField();
+            quantity.setPromptText(bundle.getString("quantity"));
+
+            itemsContainer.getChildren().add(new HBox(10, price, quantity));
+        }
+    }
+
+    @FXML
+    private void calculateTotal() {
+        double total = 0;
+
+        for (Node node : itemsContainer.getChildren()) {
+            HBox row = (HBox) node;
+            TextField priceField = (TextField) row.getChildren().get(0);
+            TextField qtyField = (TextField) row.getChildren().get(1);
+
+            double price = Double.parseDouble(priceField.getText());
+            int qty = Integer.parseInt(qtyField.getText());
+
+            total += price * qty;
+        }
+
+        labelTotal.setText(bundle.getString("total") + ": " + total);
     }
 }
+

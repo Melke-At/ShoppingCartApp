@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+
+<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.shoppingcartapp.Controller">
+
+    <!-- Language selection -->
+    <HBox spacing="5" alignment="CENTER">
+        <Label fx:id="labelSelectLanguage" text="%selectLanguage"/>
+        <ComboBox fx:id="languageBox" onAction="#changeLanguage"/>
+    </HBox>
+
+    <!-- Number of items -->
+    <HBox spacing="5" alignment="CENTER">
+        <Label fx:id="labelItems" text="%enterItems"/>
+        <TextField fx:id="numItemsField" promptText="0"/>
+        <Button text="Generate Fields" onAction="#generateFields"/>
+    </HBox>
+
+    <!-- Dynamic items -->
+    <VBox fx:id="itemsContainer" spacing="5"/>
+
+    <!-- Calculate -->
+    <Button text="%calculate" onAction="#calculateTotal"/>
+
+    <!-- Total -->
+    <Label fx:id="labelTotal" text="%total"
+           style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+
+</VBox>

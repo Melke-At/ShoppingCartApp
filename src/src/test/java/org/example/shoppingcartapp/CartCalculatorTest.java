@@ -1,13 +1,12 @@
-import org.example.CartService;
+package org.example.shoppingcartapp;
+
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class CartServiceTest {
+class CartCalculatorTest {
 
-    CartService service = new CartService();
+    CartCalculator service = new CartCalculator();
 
     @Test
     void testItemTotal() {
@@ -16,7 +15,6 @@ class CartServiceTest {
 
     @Test
     void testCartTotal() {
-        List<Double> items = List.of(10.0, 20.0, 30.0);
-        assertEquals(60.0, service.calculateCartTotal(items));
+        assertEquals(60.0, service.calculateCartTotal(List.of(10.0, 20.0, 30.0)));
     }
 }

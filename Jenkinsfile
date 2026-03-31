@@ -14,13 +14,19 @@ pipeline {
 
     stages {
 
-        // 1️⃣ Checkout the repository
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'main',
                         url: 'https://github.com/Melke-At/ShoppingCartApp.git'
             }
         }
+
 
         // 2️⃣ Run unit tests
         stage('Run Tests') {

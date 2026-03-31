@@ -2,6 +2,7 @@ package org.example.shoppingcartapp;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -17,6 +18,10 @@ public class Controller {
     @FXML private Label labelItems, labelTotal;
     @FXML private TextField numItemsField;
     @FXML private VBox itemsContainer;
+    @FXML private Button generateFieldsButton;
+    @FXML private Button calculateButton;
+    @FXML private Label labelSelectLanguage;
+
 
     private ResourceBundle bundle;
 
@@ -30,10 +35,13 @@ public class Controller {
     private void loadLanguage(Locale locale) {
         bundle = ResourceBundle.getBundle("i18n.MessagesBundle", locale);
 
-        // Correct way to set label text
+        labelSelectLanguage.setText(bundle.getString("selectLanguage"));
         labelItems.setText(bundle.getString("enterItems"));
         labelTotal.setText(bundle.getString("total"));
+        generateFieldsButton.setText(bundle.getString("generateFields"));
+        calculateButton.setText(bundle.getString("calculate"));
     }
+
 
     @FXML
     private void changeLanguage() {

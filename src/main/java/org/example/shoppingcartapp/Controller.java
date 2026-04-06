@@ -1,91 +1,112 @@
 package org.example.shoppingcartapp;
 
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Controller {
 
-    @FXML private ComboBox<String> languageBox;
-    @FXML private Label labelItems, labelTotal;
-    @FXML private TextField numItemsField;
-    @FXML private VBox itemsContainer;
+    @FXML private ComboBox<String> languageSelector;
+    @FXML private Label labelSelectLanguage;
+    @FXML private Label labelItems;
+    @FXML private Label labelTotal;
     @FXML private Button generateFieldsButton;
     @FXML private Button calculateButton;
-    @FXML private Label labelSelectLanguage;
+    @FXML private TextField numberOfItemsField;
+    @FXML private VBox itemsContainer;
+    @FXML private Label resultLabel;
 
+    private final CartCalculator calculator = new CartCalculator();
+    private final CartService cartService = new CartService();
+    private final LocalizationDAO localizationDAO = new LocalizationDAO();
 
-    private ResourceBundle bundle;
+    private Map<String, String> translations;
 
     @FXML
     public void initialize() {
-        languageBox.getItems().addAll("English", "Finnish", "Swedish", "Japanese", "Arabic");
-        languageBox.setValue("English");
-        loadLanguage(new Locale("en", "US"));
-    }
-
-    private void loadLanguage(Locale locale) {
-        bundle = ResourceBundle.getBundle("i18n.MessagesBundle", locale);
-
-        labelSelectLanguage.setText(bundle.getString("selectLanguage"));
-        labelItems.setText(bundle.getString("enterItems"));
-        labelTotal.setText(bundle.getString("total"));
-        generateFieldsButton.setText(bundle.getString("generateFields"));
-        calculateButton.setText(bundle.getString("calculate"));
-    }
-
-
-    @FXML
-    private void changeLanguage() {
-        switch (languageBox.getValue()) {
-            case "Finnish" -> loadLanguage(new Locale("fi", "FI"));
-            case "Swedish" -> loadLanguage(new Locale("sv", "SE"));
-            case "Japanese" -> loadLanguage(new Locale("ja", "JP"));
-            case "Arabic" -> loadLanguage(new Locale("ar", "AR"));
-            default -> loadLanguage(new Locale("en", "US"));
-        }
+        languageSelector.getItems().addAll("en", "fi", "sv", "ja", "ar");
+        languageSelector.setValue("en");
+        loadLanguage("en");
     }
 
     @FXML
-    private void generateFields() {
+    private void onLanguageChanged() {
+        String selected = languageSelector.getValue();
+        loadLanguage(selected);
+    }
+
+    private void loadLanguage(String lang) {
+        translations = localizationDAO.loadLanguage(lang);
+
+        labelSelectLanguage.setText(translations.getOrDefault("selectLanguage", "Select Language"));
+        labelItems.setText(translations.getOrDefault("enterItems", "Enter number of items"));
+        labelTotal.setText(translations.getOrDefault("total", "Total"));
+        generateFieldsButton.setText(translations.getOrDefault("generateFields", "Generate Fields"));
+        calculateButton.setText(translations.getOrDefault("calculate", "Calculate"));
+    }
+
+    @FXML
+    private void generateItemFields() {
         itemsContainer.getChildren().clear();
-        int count = Integer.parseInt(numItemsField.getText());
+
+        int count;
+        try {
+            count = Integer.parseInt(numberOfItemsField.getText());
+        } catch (NumberFormatException e) {
+            resultLabel.setText("Invalid number");
+            return;
+        }
 
         for (int i = 0; i < count; i++) {
-            TextField price = new TextField();
-            price.setPromptText(bundle.getString("price"));
+            HBox row = new HBox(10);
 
-            TextField quantity = new TextField();
-            quantity.setPromptText(bundle.getString("quantity"));
+            TextField priceField = new TextField();
+            priceField.setPromptText(translations.getOrDefault("price", "Price"));
 
-            itemsContainer.getChildren().add(new HBox(10, price, quantity));
+            TextField quantityField = new TextField();
+            quantityField.setPromptText(translations.getOrDefault("quantity", "Quantity"));
+
+            row.getChildren().addAll(priceField, quantityField);
+            itemsContainer.getChildren().add(row);
         }
     }
 
     @FXML
     private void calculateTotal() {
-        double total = 0;
+        List<CartItemDTO> items = new ArrayList<>();
 
-        for (Node node : itemsContainer.getChildren()) {
-            HBox row = (HBox) node;
-            TextField priceField = (TextField) row.getChildren().get(0);
-            TextField qtyField = (TextField) row.getChildren().get(1);
+        for (var node : itemsContainer.getChildren()) {
+            if (node instanceof HBox row) {
+                TextField priceField = (TextField) row.getChildren().get(0);
+                TextField quantityField = (TextField) row.getChildren().get(1);
 
-            double price = Double.parseDouble(priceField.getText());
-            int qty = Integer.parseInt(qtyField.getText());
+                try {
+                    double price = Double.parseDouble(priceField.getText());
+                    int quantity = Integer.parseInt(quantityField.getText());
 
-            total += price * qty;
+                    items.add(new CartItemDTO(price, quantity));
+
+                } catch (NumberFormatException e) {
+                    resultLabel.setText("Invalid input");
+                    return;
+                }
+            }
         }
 
-        labelTotal.setText(bundle.getString("total") + ": " + total);
+        // Calculate total
+        double total = items.stream()
+                .mapToDouble(i -> calculator.calculateItemTotal(i.getPrice(), i.getQuantity()))
+                .sum();
+
+        resultLabel.setText(translations.getOrDefault("total", "Total") + ": " + total);
+
+        // Save to DB
+        String lang = languageSelector.getValue();
+        cartService.saveCart(items, lang);
     }
 }
-

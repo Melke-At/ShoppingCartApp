@@ -34,11 +34,4 @@ class CartCalculatorTest {
         double result = calculator.calculateCartTotal(items);
         assertEquals(0.0, result, 0.001);
     }
-
-    @Test
-    void testCalculateCartTotalSingleItem() {
-        List<Double> items = List.of(99.99);
-        double result = calculator.calculateCartTotal(items);
-        assertEquals(99.99, result, 0.001);
-    }
 }

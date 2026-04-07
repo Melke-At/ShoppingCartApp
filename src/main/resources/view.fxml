@@ -7,28 +7,38 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Button?>
 
-<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
+<VBox spacing="10" alignment="CENTER"
+      xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.shoppingcartapp.Controller">
 
     <!-- Language selection -->
     <HBox spacing="5" alignment="CENTER">
         <Label fx:id="labelSelectLanguage" text="%selectLanguage"/>
-        <ComboBox fx:id="languageBox" onAction="#changeLanguage"/>
+        <ComboBox fx:id="languageSelector" onAction="#onLanguageChanged"/>
     </HBox>
 
     <!-- Number of items -->
     <HBox spacing="5" alignment="CENTER">
         <Label fx:id="labelItems" text="%enterItems"/>
-        <TextField fx:id="numItemsField" promptText="0"/>
-        <Button fx:id="generateFieldsButton" text="%generateFields" onAction="#generateFields"/>    </HBox>
+        <TextField fx:id="numberOfItemsField" promptText="0"/>
+        <Button fx:id="generateFieldsButton"
+                text="%generateFields"
+                onAction="#generateItemFields"/>
+    </HBox>
 
     <!-- Dynamic items -->
     <VBox fx:id="itemsContainer" spacing="5"/>
 
     <!-- Calculate -->
-    <Button fx:id="calculateButton" text="%calculate" onAction="#calculateTotal"/>
-    <!-- Total -->
-    <Label fx:id="labelTotal" text="%total"
+    <Button fx:id="calculateButton"
+            text="%calculate"
+            onAction="#calculateTotal"/>
+
+    <Label fx:id="labelTotal" text="%total"/>
+
+    <!-- Result -->
+    <Label fx:id="resultLabel"
+           text=""
            style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
 
 </VBox>

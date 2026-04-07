@@ -8,7 +8,7 @@ pipeline {
     environment {
         PATH = "C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
         DOCKERHUB_CREDENTIALS_ID = 'Docker_Hub'
-        DOCKERHUB_REPO = 'melkamuy/shoppingcartapp'
+        DOCKERHUB_REPO = 'melkamuy/shoppingcartappDB'
         DOCKER_IMAGE_TAG = 'latest'
     }
 
@@ -23,7 +23,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                        url: 'https://github.com/Melke-At/ShoppingCartApp.git'
+                        url: 'https://github.com/Melke-At/ShoppingCartAppDB.git'
             }
         }
 

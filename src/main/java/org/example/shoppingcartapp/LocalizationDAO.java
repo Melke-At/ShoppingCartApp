@@ -11,12 +11,22 @@ public class LocalizationDAO {
 
     private final Connection conn;
 
+    // ---------------------------
+    // PRODUCTION CONSTRUCTOR
+    // ---------------------------
     public LocalizationDAO() {
         try {
             this.conn = DatabaseConnection.getConnection();
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to connect to database", e);
         }
+    }
+
+    // ---------------------------
+    // TEST CONSTRUCTOR (ADDED)
+    // ---------------------------
+    public LocalizationDAO(Connection conn) {
+        this.conn = conn;
     }
 
     /**
@@ -26,18 +36,21 @@ public class LocalizationDAO {
      * @return Map of key → translated value
      */
     public Map<String, String> loadLanguage(String languageCode) {
+
         Map<String, String> translations = new HashMap<>();
 
-        String sql = """
+        final String sql = """
             SELECT `key`, value 
             FROM localization_strings 
             WHERE language = ?
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, languageCode);
 
             try (ResultSet rs = stmt.executeQuery()) {
+
                 while (rs.next()) {
                     translations.put(
                             rs.getString("key"),

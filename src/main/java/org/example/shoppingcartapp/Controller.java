@@ -11,22 +11,44 @@ import java.util.Map;
 
 public class Controller {
 
-    @FXML private ComboBox<String> languageSelector;
-    @FXML private Label labelSelectLanguage;
-    @FXML private Label labelItems;
-    @FXML private Label labelTotal;
-    @FXML private Button generateFieldsButton;
-    @FXML private Button calculateButton;
-    @FXML private TextField numberOfItemsField;
+    @FXML
+    ComboBox<String> languageSelector;
+    @FXML
+    Label labelSelectLanguage;
+    @FXML
+    Label labelItems;
+    @FXML
+    Label labelTotal;
+    @FXML
+    Button generateFieldsButton;
+    @FXML
+    Button calculateButton;
+    @FXML
+    TextField numberOfItemsField;
     @FXML
     VBox itemsContainer;
-    @FXML private Label resultLabel;
+    @FXML
+    Label resultLabel;
 
     private final CartCalculator calculator = new CartCalculator();
-    private final CartService cartService = new CartService();
-    private final LocalizationDAO localizationDAO = new LocalizationDAO();
+
+    // ❗ Removed "final" and direct initialization
+    private CartService cartService;
+    private LocalizationDAO localizationDAO;
 
     Map<String, String> translations;
+
+    // ✅ Default constructor (used by JavaFX)
+    public Controller() {
+        this.cartService = new CartService();
+        this.localizationDAO = new LocalizationDAO();
+    }
+
+    // ✅ Constructor for testing (dependency injection)
+    public Controller(CartService cartService, LocalizationDAO localizationDAO) {
+        this.cartService = cartService;
+        this.localizationDAO = localizationDAO;
+    }
 
     @FXML
     public void initialize() {
@@ -52,7 +74,7 @@ public class Controller {
     }
 
     @FXML
-    private void generateItemFields() {
+    void generateItemFields() {
         itemsContainer.getChildren().clear();
 
         int count;
@@ -106,7 +128,7 @@ public class Controller {
 
         resultLabel.setText(translations.getOrDefault("total", "Total") + ": " + total);
 
-        // Save to DB
+        // Save to DB (mocked in tests)
         String lang = languageSelector.getValue();
         cartService.saveCart(items, lang);
     }

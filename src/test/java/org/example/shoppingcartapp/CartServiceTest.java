@@ -1,9 +1,9 @@
 package org.example.shoppingcartapp;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.MockedStatic;
 
-import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,44 +11,68 @@ import static org.mockito.Mockito.*;
 
 class CartServiceTest {
 
+    // TEST 1: Default constructor initializes DAO successfully
+    @Test
+    void testDefaultConstructor_initializesDAO() throws Exception {
+        try (MockedStatic<DatabaseConnection> mocked = mockStatic(DatabaseConnection.class)) {
+            mocked.when(DatabaseConnection::getConnection)
+                    .thenReturn(mock(java.sql.Connection.class));
+
+            CartService service = new CartService();
+
+            assertNotNull(service);
+        }
+    }
+
+    // TEST 2: Default constructor wraps DAO init failure
+    @Test
+    void testDefaultConstructor_throwsCartServiceException() throws Exception {
+        try (MockedStatic<DatabaseConnection> mocked = mockStatic(DatabaseConnection.class)) {
+            mocked.when(DatabaseConnection::getConnection)
+                    .thenThrow(new SQLException("DB error"));
+
+            assertThrows(CartServiceException.class, CartService::new);
+        }
+    }
+
+    // TEST 3: saveCart success path
     @Test
     void testSaveCart_success() throws Exception {
+        ShoppingCartDAO dao = mock(ShoppingCartDAO.class);
 
-        // ✅ Arrange
-        CartService service = new CartService();
+        when(dao.saveCartRecord(anyInt(), anyDouble(), anyString()))
+                .thenReturn(10);
 
-        // Mock DAO
-        ShoppingCartDAO mockDAO = mock(ShoppingCartDAO.class);
+        CartService service = new CartService(dao);
 
-        // Inject mock into private field using reflection
-        Field field = CartService.class.getDeclaredField("cartDAO");
-        field.setAccessible(true);
-        field.set(service, mockDAO);
+        List<CartItemDTO> items = List.of(
+                new CartItemDTO(10.0, 2),
+                new CartItemDTO(5.0, 1)
+        );
 
-        // Test data
-        CartItemDTO item1 = new CartItemDTO(10.0, 2); // 20
-        CartItemDTO item2 = new CartItemDTO(5.0, 3);  // 15
-
-        List<CartItemDTO> items = List.of(item1, item2);
-
-        // Mock DAO behavior
-        when(mockDAO.saveCartRecord(2, 35.0, "en")).thenReturn(100);
-
-        // ✅ Act
         int result = service.saveCart(items, "en");
 
-        // ✅ Assert
-        assertEquals(100, result);
+        assertEquals(10, result);
 
-        // Verify main record saved
-        verify(mockDAO, times(1))
-                .saveCartRecord(2, 35.0, "en");
+        verify(dao).saveCartRecord(2, 25.0, "en");
+        verify(dao).saveCartItem(10, 1, 10.0, 2);
+        verify(dao).saveCartItem(10, 2, 5.0, 1);
+    }
 
-        // Verify items saved
-        verify(mockDAO, times(1))
-                .saveCartItem(100, 1, 10.0, 2);
+    // TEST 4: saveCart wraps DAO exception
+    @Test
+    void testSaveCart_throwsCartServiceException() throws Exception {
+        ShoppingCartDAO dao = mock(ShoppingCartDAO.class);
 
-        verify(mockDAO, times(1))
-                .saveCartItem(100, 2, 5.0, 3);
+        when(dao.saveCartRecord(anyInt(), anyDouble(), anyString()))
+                .thenThrow(new ShoppingCartException("DB error", null));
+
+        CartService service = new CartService(dao);
+
+        List<CartItemDTO> items = List.of(new CartItemDTO(10.0, 2));
+
+        assertThrows(CartServiceException.class, () ->
+                service.saveCart(items, "en")
+        );
     }
 }

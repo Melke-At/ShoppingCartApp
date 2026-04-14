@@ -3,23 +3,28 @@ package org.example.shoppingcartapp;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
 public class ShoppingCartDAO {
 
     private final Connection conn;
 
-    public ShoppingCartDAO() {
+    // Production constructor
+    public ShoppingCartDAO() throws ShoppingCartException {
         try {
             this.conn = DatabaseConnection.getConnection();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to connect to DB", e);
+            throw new ShoppingCartException("Failed to connect to DB", e);
         }
     }
 
-    // ---------------------------
+    // Test constructor
+    public ShoppingCartDAO(Connection conn) {
+        this.conn = conn;
+    }
+
     // SAVE CART RECORD
-    // ---------------------------
-    public int saveCartRecord(int totalItems, double totalCost, String language) {
-        String sql = """
+    public int saveCartRecord(int totalItems, double totalCost, String language) throws ShoppingCartException {
+        final String sql = """
             INSERT INTO cart_records (total_items, total_cost, language)
             VALUES (?, ?, ?)
         """;
@@ -30,23 +35,23 @@ public class ShoppingCartDAO {
             stmt.setString(3, language);
             stmt.executeUpdate();
 
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1); // return generated cart_record_id
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save cart record", e);
+            throw new ShoppingCartException("Failed to save cart record", e);
         }
 
         return -1;
     }
 
-    // ---------------------------
     // SAVE CART ITEM
-    // ---------------------------
-    public void saveCartItem(int cartRecordId, int itemNumber, double price, int quantity) {
-        String sql = """
+    public void saveCartItem(int cartRecordId, int itemNumber, double price, int quantity)
+            throws ShoppingCartException {
+
+        final String sql = """
             INSERT INTO cart_items (cart_record_id, item_number, price, quantity, subtotal)
             VALUES (?, ?, ?, ?, ?)
         """;
@@ -58,43 +63,42 @@ public class ShoppingCartDAO {
             stmt.setInt(4, quantity);
             stmt.setDouble(5, price * quantity);
             stmt.executeUpdate();
-
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save cart item", e);
+            throw new ShoppingCartException("Failed to save cart item", e);
         }
     }
 
-    // ---------------------------
     // FETCH ITEMS FOR A CART
-    // ---------------------------
-    public List<CartItem> getItemsForCart(int cartRecordId) {
+    public List<CartItem> getItemsForCart(int cartRecordId) throws ShoppingCartException {
         List<CartItem> items = new ArrayList<>();
 
-        String sql = "SELECT item_number, price, quantity, subtotal FROM cart_items WHERE cart_record_id = ?";
+        final String sql = """
+            SELECT item_number, price, quantity, subtotal
+            FROM cart_items
+            WHERE cart_record_id = ?
+        """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, cartRecordId);
-            ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                items.add(new CartItem(
-                        rs.getInt("item_number"),
-                        rs.getDouble("price"),
-                        rs.getInt("quantity"),
-                        rs.getDouble("subtotal")
-                ));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    items.add(new CartItem(
+                            rs.getInt("item_number"),
+                            rs.getDouble("price"),
+                            rs.getInt("quantity"),
+                            rs.getDouble("subtotal")
+                    ));
+                }
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to fetch cart items", e);
+            throw new ShoppingCartException("Failed to fetch cart items", e);
         }
 
         return items;
     }
 
-    // ---------------------------
     // DATA CLASS
-    // ---------------------------
     public static class CartItem {
         private final int itemNumber;
         private final double price;

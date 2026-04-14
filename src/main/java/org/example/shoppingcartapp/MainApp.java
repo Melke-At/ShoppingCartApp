@@ -12,7 +12,9 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Locale locale = new Locale("en", "US");
+
+        // Use modern factory method instead of deprecated constructor
+        Locale locale = Locale.of("en", "US");
 
         ResourceBundle bundle =
                 ResourceBundle.getBundle("i18n.MessagesBundle", locale);
@@ -20,7 +22,10 @@ public class MainApp extends Application {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/view.fxml"),
                 bundle
-        );        Scene scene = new Scene(loader.load());
+        );
+
+        Scene scene = new Scene(loader.load());
+
         stage.setScene(scene);
         stage.setTitle("Shopping Cart App");
         stage.show();

@@ -18,14 +18,15 @@ public class Controller {
     @FXML private Button generateFieldsButton;
     @FXML private Button calculateButton;
     @FXML private TextField numberOfItemsField;
-    @FXML private VBox itemsContainer;
+    @FXML
+    VBox itemsContainer;
     @FXML private Label resultLabel;
 
     private final CartCalculator calculator = new CartCalculator();
     private final CartService cartService = new CartService();
     private final LocalizationDAO localizationDAO = new LocalizationDAO();
 
-    private Map<String, String> translations;
+    Map<String, String> translations;
 
     @FXML
     public void initialize() {
@@ -77,7 +78,7 @@ public class Controller {
     }
 
     @FXML
-    private void calculateTotal() {
+    void calculateTotal() {
         List<CartItemDTO> items = new ArrayList<>();
 
         for (var node : itemsContainer.getChildren()) {

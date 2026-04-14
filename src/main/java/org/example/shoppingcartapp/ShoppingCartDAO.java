@@ -3,7 +3,6 @@ package org.example.shoppingcartapp;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 public class ShoppingCartDAO {
 
     private final Connection conn;

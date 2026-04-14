@@ -15,7 +15,7 @@ public class LocalizationDAO {
         try {
             this.conn = DatabaseConnection.getConnection();
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to connect to DB", e);
+            throw new IllegalStateException("Failed to connect to database", e);
         }
     }
 
@@ -37,16 +37,20 @@ public class LocalizationDAO {
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, languageCode);
 
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                translations.put(
-                        rs.getString("key"),
-                        rs.getString("value")
-                );
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    translations.put(
+                            rs.getString("key"),
+                            rs.getString("value")
+                    );
+                }
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to load localization strings for: " + languageCode, e);
+            throw new IllegalStateException(
+                    "Failed to load localization strings for language: " + languageCode,
+                    e
+            );
         }
 
         return translations;

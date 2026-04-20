@@ -98,11 +98,8 @@
                             <goal>report</goal>
                         </goals>
                         <configuration>
+                            <dataFile>${project.basedir}/target/jacoco.exec</dataFile>
                             <outputDirectory>${project.basedir}/target/site/jacoco</outputDirectory>
-                            <formats>
-                                <format>XML</format>
-                                <format>HTML</format>
-                            </formats>
                         </configuration>
                     </execution>
                 </executions>

@@ -139,7 +139,7 @@ class ShoppingCartDAOTest {
     // TEST constructor exception
     // ---------------------------
     @Test
-    void testConstructor_exception() throws Exception {
+    void testConstructor_exception() {
 
         try (MockedStatic<DatabaseConnection> mocked = mockStatic(DatabaseConnection.class)) {
 

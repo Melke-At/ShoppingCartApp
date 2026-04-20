@@ -20,7 +20,7 @@ class LocalizationDAOTest {
     private LocalizationDAO dao;
 
     @BeforeEach
-    void setup() throws Exception {
+    void setup() {
 
         conn = mock(Connection.class);
         stmt = mock(PreparedStatement.class);

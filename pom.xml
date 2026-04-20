@@ -100,8 +100,8 @@
                         <configuration>
                             <outputDirectory>${project.basedir}/target/site/jacoco</outputDirectory>
                             <formats>
-                                <format>xml</format>
-                                <format>html</format>
+                                <format>XML</format>
+                                <format>HTML</format>
                             </formats>
                         </configuration>
                     </execution>

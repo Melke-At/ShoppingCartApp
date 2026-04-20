@@ -15,16 +15,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- SonarQube -->
+        <sonar.projectKey>ShoppingCartAppDB</sonar.projectKey>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
         <sonar.sources>src/main/java</sonar.sources>
         <sonar.tests>src/test/java</sonar.tests>
-        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.projectKey>ShoppingCartAppDB</sonar.projectKey>
         <sonar.java.binaries>target/classes</sonar.java.binaries>
-        <sonar.host.url>http://localhost:9000</sonar.host.url>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.coverage.jacoco.xmlReportPaths>
-            ${project.basedir}/target/site/jacoco/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Versions -->
         <javafx.version>21.0.6</javafx.version>
@@ -69,7 +66,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Mockito for unit testing -->
+        <!-- Mockito -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -82,13 +79,14 @@
     <build>
         <plugins>
 
-            <!-- JaCoCo Coverage Plugin (fixed phase) -->
+            <!-- JaCoCo Coverage Plugin -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
                 <executions>
                     <execution>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
